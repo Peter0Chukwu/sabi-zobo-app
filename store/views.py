@@ -1,3 +1,5 @@
-from django.shortcuts import render
+from django.http import HttpResponse
 
-# Create your views here.
+
+def product_page(request):
+    return HttpResponse(f"Welcome {request.user.username}! Product page coming in Step 2.2.")
