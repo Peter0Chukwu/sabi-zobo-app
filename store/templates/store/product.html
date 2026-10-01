@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zobo - Buy Now</title>
+</head>
+<body>
+    <h1>{{ product.name }}</h1>
+    <p>Price: ₦{{ product.price }}</p>
+    <p>Welcome, {{ request.user.username }}!</p>
+
+    <form method="post" action="{% url 'checkout' %}">
+        {% csrf_token %}
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <button type="submit">Buy Now</button>
+    </form>
+
+    <p><a href="{% url 'logout' %}">Logout</a></p>
+</body>
+</html>
