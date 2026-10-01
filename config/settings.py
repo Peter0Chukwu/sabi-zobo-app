@@ -86,11 +86,11 @@ DATABASES = {
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
         'PORT': config('DB_PORT', default='5432'),
-        'PAYSTACK_SECRET_KEY': config('PAYSTACK_SECRET_KEY'),
-        'PAYSTACK_PUBLIC_KEY': config('PAYSTACK_PUBLIC_KEY'),
     }
 }
 
+PAYSTACK_SECRET_KEY = config('PAYSTACK_SECRET_KEY')
+PAYSTACK_PUBLIC_KEY = config('PAYSTACK_PUBLIC_KEY')
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
