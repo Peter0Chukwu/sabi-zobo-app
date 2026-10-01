@@ -1,5 +1,9 @@
-from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Product
 
 
+@login_required
 def product_page(request):
-    return HttpResponse(f"Welcome {request.user.username}! Product page coming in Step 2.2.")
+    product = get_object_or_404(Product, name='Zobo', is_active=True)
+    return render(request, 'store/product.html', {'product': product})
