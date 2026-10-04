@@ -18,7 +18,7 @@ def signup_view(request):
                     user.referred_by = referrer
             user.save()
             login(request, user)
-            return redirect('product_page')
+            return redirect('dashboard')
     else:
         form = SignUpForm()
 
@@ -31,7 +31,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('product_page')
+            return redirect('dashboard')
     else:
         form = AuthenticationForm()
 

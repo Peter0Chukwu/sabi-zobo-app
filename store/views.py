@@ -70,3 +70,15 @@ def payment_callback(request):
         return render(request, 'store/payment_success.html', {'order': order})
 
     return render(request, 'store/payment_failed.html', {'order': order})
+
+@login_required
+def dashboard(request):
+    orders = Order.objects.filter(buyer=request.user).order_by('-created_at')
+    referral_link = request.build_absolute_uri(f'/accounts/signup/?ref={request.user.referral_code}')
+    referral_count = request.user.referrals.count()
+
+    return render(request, 'store/dashboard.html', {
+        'orders': orders,
+        'referral_link': referral_link,
+        'referral_count': referral_count,
+    })
