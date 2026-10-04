@@ -61,6 +61,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     paystack_reference = models.CharField(max_length=100, blank=True)
     delivered_at = models.DateTimeField(null=True, blank=True)
+    cashback_processed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
