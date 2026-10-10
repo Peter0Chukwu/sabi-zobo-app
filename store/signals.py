@@ -1,7 +1,8 @@
+from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 from .models import Order, Wallet, WalletTransaction
-
 
 @receiver(post_save, sender=Order)
 def credit_cashback_on_delivery(sender, instance, **kwargs):
@@ -40,4 +41,26 @@ def credit_cashback_on_delivery(sender, instance, **kwargs):
         )
 
     # Mark as processed WITHOUT triggering this signal again
-    Order.objects.filter(pk=instance.pk).update(cashback_processed=True)
+    Order.objects.filter(pk=instance.pk).update(
+        cashback_processed=True,
+        delivered_at=timezone.now(),
+    )
+
+@receiver(post_save, sender=Order)
+def reverse_earnings_on_refund(sender, instance, **kwargs):
+    if instance.status != 'refunded':
+        return
+
+    pending = WalletTransaction.objects.filter(
+        order=instance,
+        status='pending',
+        type__in=['cashback', 'referral'],
+    )
+
+    for tx in pending:
+        with transaction.atomic():
+            wallet = Wallet.objects.select_for_update().get(user=tx.user)
+            wallet.pending_balance -= tx.amount
+            wallet.save()
+            tx.status = 'reversed'
+            tx.save()
