@@ -2,7 +2,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product, Order
+from .models import Product, Order, Wallet, WalletTransaction
 
 
 @login_required
@@ -74,11 +74,15 @@ def payment_callback(request):
 @login_required
 def dashboard(request):
     orders = Order.objects.filter(buyer=request.user).order_by('-created_at')
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+    transactions = WalletTransaction.objects.filter(user=request.user).order_by('-created_at')
     referral_link = request.build_absolute_uri(f'/accounts/signup/?ref={request.user.referral_code}')
     referral_count = request.user.referrals.count()
 
     return render(request, 'store/dashboard.html', {
         'orders': orders,
+        'wallet': wallet,
+        'transactions': transactions,
         'referral_link': referral_link,
         'referral_count': referral_count,
     })
