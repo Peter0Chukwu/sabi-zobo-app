@@ -7,6 +7,7 @@ class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'referral_code', 'referred_by', 'is_staff')
     fieldsets = UserAdmin.fieldsets + (
         ('Referral Info', {'fields': ('referral_code', 'referred_by', 'phone_number')}),
+        ('Bank Details', {'fields': ('bank_name', 'bank_code', 'account_number', 'account_name')}),
     )
     readonly_fields = ('referral_code',)
 

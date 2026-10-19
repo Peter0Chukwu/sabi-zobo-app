@@ -10,6 +10,10 @@ class User(AbstractUser):
         on_delete=models.SET_NULL, related_name='referrals'
     )
     phone_number = models.CharField(max_length=20, blank=True)
+    bank_name = models.CharField(max_length=100, blank=True)
+    bank_code = models.CharField(max_length=10, blank=True)
+    account_number = models.CharField(max_length=10, blank=True)
+    account_name = models.CharField(max_length=150, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.referral_code:
