@@ -87,11 +87,13 @@ class WalletTransaction(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('available', 'Available'),
+        ('processing', 'Processing'),
         ('paid_out', 'Paid Out'),
         ('reversed', 'Reversed'),
     ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wallet_transactions')
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True)
+    payout = models.ForeignKey('PayoutBatch', on_delete=models.SET_NULL, null=True, blank=True, related_name='transactions')
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
