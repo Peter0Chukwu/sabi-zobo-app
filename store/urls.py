@@ -6,4 +6,5 @@ urlpatterns = [
     path('checkout/', views.checkout_view, name='checkout'),
     path('payment/callback/', views.payment_callback, name='payment_callback'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('bank-details/', views.bank_details, name='bank_details'),
 ]

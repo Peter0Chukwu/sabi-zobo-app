@@ -3,6 +3,8 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product, Order, Wallet, WalletTransaction
+from .forms import BankDetailsForm
+from .banks import get_banks, resolve_account
 
 
 @login_required
@@ -65,13 +67,19 @@ def payment_callback(request):
     res_data = response.json()
 
     if res_data.get('status') and res_data['data']['status'] == 'success':
+        # The amount Paystack received must match the order
         paid_kobo = res_data['data']['amount']
         if paid_kobo != int(order.price_paid * 100):
             return render(request, 'store/payment_failed.html', {'order': order})
+
+        # Only move forward from pending, never back from delivered/refunded
         if order.status == 'pending':
             order.status = 'paid'
             order.save()
         return render(request, 'store/payment_success.html', {'order': order})
+
+    return render(request, 'store/payment_failed.html', {'order': order})
+
 
 @login_required
 def dashboard(request):
@@ -87,4 +95,42 @@ def dashboard(request):
         'transactions': transactions,
         'referral_link': referral_link,
         'referral_count': referral_count,
+    })
+
+
+@login_required
+def bank_details(request):
+    banks = get_banks()
+    user = request.user
+
+    if request.method == 'POST':
+        form = BankDetailsForm(request.POST, banks=banks)
+        if form.is_valid():
+            code = form.cleaned_data['bank_code']
+            number = form.cleaned_data['account_number']
+            bank_name = dict(form.fields['bank_code'].choices).get(code, '')
+
+            if settings.VERIFY_BANK_ACCOUNTS:
+                account_name, error = resolve_account(number, code)
+            else:
+                account_name, error = (user.get_full_name() or user.username), None
+
+            if error:
+                form.add_error('account_number', error)
+            else:
+                user.bank_code = code
+                user.bank_name = bank_name
+                user.account_number = number
+                user.account_name = account_name
+                user.save(update_fields=['bank_code', 'bank_name', 'account_number', 'account_name'])
+                return redirect('dashboard')
+    else:
+        form = BankDetailsForm(
+            banks=banks,
+            initial={'bank_code': user.bank_code, 'account_number': user.account_number},
+        )
+
+    return render(request, 'store/bank_details.html', {
+        'form': form,
+        'banks_unavailable': not banks,
     })

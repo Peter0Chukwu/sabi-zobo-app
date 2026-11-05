@@ -33,6 +33,15 @@
     </table>
 
     <hr>
+    <h2>Payout Account</h2>
+    {% if request.user.account_number %}
+        <p>{{ request.user.bank_name }} — {{ request.user.account_name }} (ending {{ request.user.account_number|slice:"-4:" }})</p>
+        <p><a href="{% url 'bank_details' %}">Change</a></p>
+    {% else %}
+        <p>No payout account yet. <a href="{% url 'bank_details' %}">Add your bank details</a> to receive your monthly payout.</p>
+    {% endif %}
+
+    <hr>
     <h2>My Referrals</h2>
     <p>Your referral link: <code>{{ referral_link }}</code></p>
     <p>People you've referred: {{ referral_count }}</p>
