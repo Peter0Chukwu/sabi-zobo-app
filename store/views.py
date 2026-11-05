@@ -65,11 +65,13 @@ def payment_callback(request):
     res_data = response.json()
 
     if res_data.get('status') and res_data['data']['status'] == 'success':
-        order.status = 'paid'
-        order.save()
+        paid_kobo = res_data['data']['amount']
+        if paid_kobo != int(order.price_paid * 100):
+            return render(request, 'store/payment_failed.html', {'order': order})
+        if order.status == 'pending':
+            order.status = 'paid'
+            order.save()
         return render(request, 'store/payment_success.html', {'order': order})
-
-    return render(request, 'store/payment_failed.html', {'order': order})
 
 @login_required
 def dashboard(request):
